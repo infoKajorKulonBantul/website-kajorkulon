@@ -1,0 +1,2950 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Desa Kajor Kulon</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,700"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style1.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+      /* Gabungan Style Asli dan Modern */
+      body {
+        margin: 0;
+        font-family: "Roboto", Arial, sans-serif;
+        background: #f6f8fa;
+        overflow-x: hidden;
+      }
+      .hamburger {
+        position: fixed;
+        top: 14px;
+        left: 18px;
+        background: #fff;
+        color: #169d5c;
+        border-radius: 7px;
+        z-index: 1200;
+        cursor: pointer;
+        box-shadow: 0 0 6px #dde0e8;
+        border: 1.5px solid #e3e3e9;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        user-select: none;
+        transition: left 0.25s cubic-bezier(0.62, 0.01, 0.44, 1.19);
+      }
+      .hamburger.shifted {
+        left: 240px;
+      }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 240px;
+        height: 100vh;
+        background: #232f38;
+        color: #fff;
+        z-index: 1100;
+        transition: transform 0.25s cubic-bezier(0.62, 0.01, 0.44, 1.19);
+        box-shadow: 2px 0 7px rgba(60, 60, 70, 0.09);
+      }
+      .sidebar.closed {
+        transform: translateX(-250px);
+      }
+      .sidebar .logo {
+        font-size: 21px;
+        font-weight: bold;
+        padding: 20px 26px 11px 26px;
+        letter-spacing: 0.65px;
+        background: #169d5c;
+      }
+      .alamat-desa {
+        padding: 12px 27px;
+        font-size: 15px;
+        color: #b1ffe3;
+      }
+      .sidebar .search {
+        margin: 10px 18px 16px 18px;
+        padding: 7px 13px;
+        width: calc(100% - 40px);
+        border-radius: 5px;
+        border: none;
+      }
+      .menu {
+        margin: 16px 0 0 0;
+      }
+      .menu-item {
+        display: block;
+        color: #e9f2f2;
+        text-decoration: none;
+        padding: 10px 0 10px 28px;
+        margin-bottom: 7px;
+        font-size: 15px;
+        border-radius: 5px;
+      }
+      .menu-item.active,
+      .menu-item:hover {
+        background: #169d5c;
+        color: #fff;
+      }
+      .sidebar .user {
+        position: absolute;
+        left: 27px;
+        bottom: 14px;
+      }
+      .main-content {
+        margin-left: 240px;
+        min-height: 100vh;
+        transition: margin-left 0.2s;
+      }
+      .sidebar.closed ~ .main-content {
+        margin-left: 0;
+      }
+
+/* === DASHBOARD LAYOUT DASAR === */
+main#dashboard{
+  padding:24px 26px 40px;
+}
+
+/* Semua section dashboard */
+#dashboard section{
+  margin-bottom:28px;
+}
+
+/* Judul-judul utama di dashboard */
+#dashboard h1{
+  margin:8px 0 10px;
+  font-size:2.3rem;
+}
+#dashboard h2{
+  margin:0 0 6px;
+  font-size:1.5rem;
+}
+#dashboard h3{
+  margin:0 0 4px;
+  font-size:1.05rem;
+}
+
+/* === HERO UTAMA === */
+#heroDashboard{
+  display:grid;
+  grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+  gap:28px;
+  align-items:center;
+  padding:26px 26px 24px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#169d5c,#18bad4);
+  color:#fff;
+  box-shadow:0 15px 35px rgba(0,0,0,0.12);
+  position:relative;
+  overflow:hidden;
+}
+#heroDashboard::before,
+#heroDashboard::after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+}
+#heroDashboard::before{
+  width:260px;
+  height:260px;
+  right:-80px;
+  top:-70px;
+}
+#heroDashboard::after{
+  width:210px;
+  height:210px;
+  left:-90px;
+  bottom:-90px;
+}
+
+#heroDashboard .hero-left{
+  position:relative;
+  z-index:1;
+}
+.hero-pill{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.18);
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+#heroDashboard p{
+  margin:0 0 14px;
+  font-size:14.5px;
+}
+
+/* Tombol-hero memakai .btn bawaan, jadi cukup atur jarak */
+.hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.hero-stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+}
+.hero-stats .stat-item{
+  min-width:90px;
+  padding:8px 10px;
+  border-radius:11px;
+  background:rgba(255,255,255,0.18);
+}
+.hero-stats .stat-item span{
+  display:block;
+  font-size:19px;
+  font-weight:700;
+}
+.hero-stats .stat-item label{
+  display:block;
+  font-size:11px;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+}
+
+/* Logo hero */
+#heroDashboard .hero-right{
+  position:relative;
+  z-index:1;
+  display:flex;
+  justify-content:center;
+}
+.hero-logo-box{
+  background:#fdfdfd;
+  border-radius:18px;
+  padding:14px 14px 10px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.25);
+  text-align:center;
+  max-width:250px;
+  animation:heroFloat 3s ease-in-out infinite;
+}
+.hero-logo-box img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.hero-logo-caption{
+  margin-top:6px;
+  font-size:12px;
+  font-weight:500;
+  color:#166b4b;
+}
+
+/* === PROFIL DUSUN === */
+#profilDusun header p,
+#potensiProgram header p,
+#kegiatanRutin header p,
+#catatanWargaSection header p{
+  margin:0;
+  font-size:13px;
+  color:#5b6b66;
+}
+
+/* Grid 4 kolom responsif */
+.info-grid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+.info-card{
+  border-radius:13px;
+  padding:14px 14px 12px;
+  color:#fff;
+  box-shadow:0 10px 22px rgba(0,0,0,0.12);
+  font-size:14px;
+}
+#profilSejarah{background:linear-gradient(135deg,#19a96b,#24c680);}
+#profilGeografi{background:linear-gradient(135deg,#1f95c8,#2ebde4);}
+#profilPenduduk{background:linear-gradient(135deg,#f39c12,#f6b63f);}
+#profilInfrastruktur{background:linear-gradient(135deg,#8e44ad,#a55eea);}
+
+/* === POTENSI & PROGRAM === */
+.potensi-grid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+.potensi-card{
+  background:#ffffff;
+  border-radius:13px;
+  padding:14px 15px 12px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.06);
+  border-top:4px solid #169d5c;
+  font-size:14px;
+}
+
+/* === KEGIATAN (TIMELINE SEDERHANA) === */
+.timeline{
+  margin-top:12px;
+  border-left:3px solid #18bad4;
+  padding-left:14px;
+}
+.timeline-item{
+  margin-bottom:12px;
+  padding-bottom:6px;
+  position:relative;
+}
+.timeline-item::before{
+  content:"";
+  position:absolute;
+  left:-9px;
+  top:2px;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#18bad4;
+  box-shadow:0 0 0 5px rgba(24,186,212,0.2);
+}
+
+/* === KONTAK === */
+#kontakDusun{
+  display:grid;
+  grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+  gap:18px;
+  align-items:flex-start;
+  padding:18px 18px 16px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#e7fff5,#e3f4ff);
+}
+#kontakDusun .kontak-left ul{
+  padding-left:18px;
+  margin:6px 0 10px;
+  font-size:14px;
+}
+#kontakDusun .kontak-right{
+  background:#ffffff;
+  border-radius:12px;
+  padding:12px 14px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.06);
+  font-size:14px;
+}
+
+/* === CATATAN WARGA === */
+#catatanWargaSection .catatan-wrapper{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+  gap:18px;
+  align-items:flex-start;
+}
+
+/* Form catatan */
+#catatanForm{
+  background:#ffffff;
+  border-radius:14px;
+  padding:14px 16px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.06);
+}
+#catatanForm .catatan-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:8px;
+}
+#catatanForm input,
+#catatanForm textarea{
+  width:100%;
+  padding:7px 9px;
+  border-radius:8px;
+  border:1px solid #cfe3da;
+  font-size:14px;
+  box-sizing:border-box;
+}
+#catatanForm textarea{
+  resize:vertical;
+  margin-bottom:8px;
+}
+#catatanForm button{
+  margin-top:4px;
+}
+
+/* List catatan */
+#catatanList{
+  max-height:260px;
+  overflow-y:auto;
+  background:linear-gradient(180deg,#f4fff8,#e9f5ff);
+  border-radius:14px;
+  padding:10px 12px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.05);
+}
+.catatan-item{
+  background:#ffffff;
+  border-radius:10px;
+  padding:7px 9px;
+  margin-bottom:8px;
+  font-size:13.5px;
+  color:#394744;
+}
+.catatan-item-header{
+  display:flex;
+  justify-content:space-between;
+  gap:6px;
+  margin-bottom:2px;
+  font-size:12px;
+  color:#1b7452;
+}
+.catatan-item-tanggal{
+  font-size:12px;
+  color:#7a8883;
+  margin-bottom:2px;
+}
+.catatan-empty{
+  font-size:13px;
+  color:#6e7a75;
+  font-style:italic;
+}
+
+/* === ANIMASI HALUS === */
+main#dashboard{
+  opacity:0;
+  transform:translateY(10px);
+  animation:dashFadeIn .5s ease-out forwards;
+}
+@keyframes dashFadeIn{
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes heroFloat{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-6px);}
+}
+
+/* RESPONSIVE */
+@media (max-width:900px){
+  #heroDashboard{
+    grid-template-columns:1fr;
+    padding:20px 16px 18px;
+  }
+  main#dashboard{
+    padding:18px 14px 30px;
+  }
+  #kontakDusun{
+    grid-template-columns:1fr;
+  }
+  #catatanWargaSection .catatan-wrapper{
+    grid-template-columns:1fr;
+  }
+}
+
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 32px 9px 32px;
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .breadcrumb {
+        font-size: 13px;
+        color: #6f7f8c;
+      }
+      .user-panel i {
+        margin-left: 16px;
+      }
+      .user-panel .username {
+        margin-left: 8px;
+      }
+      h2 {
+        margin-top: 18px;
+      }
+      
+      .card {
+        border-radius: 12px;
+        background: #eee;
+        padding: 23px 17px;
+        min-height: 110px;
+        box-shadow: 0 0 6px #f3f3f3;
+      }
+      .card-purple {
+        background: #7266d6;
+        color: #fff;
+      }
+      .card-blue {
+        background: #08b3d0;
+        color: #fff;
+      }
+      .card-green {
+        background: #25b679;
+        color: #fff;
+      }
+      .card-navy {
+        background: #294362;
+        color: #fff;
+      }
+      .card-red {
+        background: #e74c3c;
+        color: #fff;
+      }
+      .card-grey {
+        background: #d4d5da;
+        color: #222;
+      }
+      .card-orange {
+        background: #f8ac43;
+        color: #333;
+      }
+      .card-cyan {
+        background: #55debc;
+        color: #112228;
+      }
+      .card-value {
+        font-size: 37px;
+        font-weight: bold;
+      }
+      .btn,
+      button {
+        margin-top: 4px;
+        padding: 7px 13px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background: #fff;
+        color: #222;
+        font-weight: bold;
+      }
+      .btn:hover,
+      button:hover {
+        background: #4e6efc;
+      }
+      .btn-danger {
+        background: #e74c3c;
+        color: #fff;
+      }
+      .admin-section {
+        background: #fff;
+        padding: 20px 20px 25px 20px;
+        border-radius: 8px;
+      }
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .admin-table th,
+      .admin-table td {
+        border: 1px solid #ddd;
+        padding: 7px;
+        text-align: center;
+      }
+      .admin-table thead {
+        background: #f2f2f2;
+      }
+      .admin-table tfoot {
+        background: #e9ecef;
+      }
+      #form-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        align-items: center;
+        justify-content: center;
+        z-index: 99;
+        display: none;
+      }
+      #admin-form {
+        background: #fff;
+        padding: 18px;
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 320px;
+      }
+      footer {
+        margin-top: 32px;
+        padding: 22px 7px;
+        background: #f2f2f2;
+        color: #333;
+        text-align: center;
+        border-radius: 6px;
+      }
+      .version {
+        background: #d0f2cf;
+        padding: 2px 8px;
+        margin-left: 18px;
+        border-radius: 5px;
+      }
+
+      /* Tambahan Surat Dinas */
+      .tabel-pengaturan {
+        background: #f7f8fa;
+        padding: 10px 9px 13px 9px;
+        border-radius: 6px;
+      }
+      .modal-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.11);
+        z-index: 9999;
+      }
+      .modal-card {
+        background: #fff;
+        padding: 25px;
+        max-width: 430px;
+        width: 90vw;
+        border-radius: 8px;
+      }
+      .surat-wrap {
+        max-width: 700px;
+        margin: 12px auto;
+        background: #fff;
+        padding: 15px 20px 22px 20px;
+        border-radius: 7px;
+      }
+      .preview {
+        background: #fff;
+        padding: 12px 18px 13px 18px;
+        margin-top: 13px;
+        border: 1px solid #e4ebe6;
+        min-height: 200px;
+      }
+      .btn-green {
+        background: #30b95c;
+        color: #fff;
+      }
+      .btn-blue {
+        background: #267bac;
+        color: #fff;
+      }
+      .btn-danger {
+        background: #e74c3c;
+        color: #fff;
+      }
+      .btn-yellow {
+        background: #ffac3f;
+        color: #333;
+      }
+      .btn-print {
+        background: #19b5fe;
+        color: #fff;
+      }
+      .btn-edit {
+        background: #aaa;
+        color: #fff;
+      }
+
+      /* Hover */
+      .btn-green:hover {
+        background: #199547;
+      }
+      .btn-blue:hover {
+        background: #1d5c85;
+      }
+      .btn-danger:hover {
+        background: #b93c31;
+      }
+      .btn-yellow:hover {
+        background: #f6a01a;
+      }
+      .btn-print:hover {
+        background: #0e7fcf;
+      }
+      .btn-edit:hover {
+        background: #868686;
+      }
+
+      .kop-title {
+        font-size: 18px;
+        font-weight: bold;
+        line-height: 1.5;
+        text-align: center;
+      }
+      .kop-small {
+        font-size: 14px;
+        text-align: center;
+      }
+      .kop-line {
+        border-top: 2.5px solid #333;
+        border-bottom: 1px solid #333;
+        margin: 7px 0 9px 0;
+      }
+      .judul-surat {
+        text-align: center;
+        text-decoration: underline;
+        font-weight: bold;
+        font-size: 17px;
+        margin: 10px 0 2px 0;
+      }
+      .nomor-surat {
+        text-align: center;
+        margin-bottom: 9px;
+        margin-top: 3px;
+      }
+      .field-table td {
+        padding: 1.2px 8px 1.1px 0;
+        font-size: 15px;
+      }
+      .surat-footer {
+        margin-top: 16px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .surat-footer .ttd {
+        text-align: center;
+      }
+      .isian-form label {
+        display: inline-block;
+        width: 135px;
+        font-size: 15px;
+      }
+      .isian-form input,
+      .isian-form textarea {
+        margin-bottom: 6px;
+        padding: 4px 8px;
+        width: 318px;
+        max-width: 99%;
+        border: 1px solid #aac1da;
+        border-radius: 5px;
+      }
+      .isian-form textarea {
+        width: 96%;
+      }
+
+      .btn-yellow:hover {
+        background: #e09b2f;
+      }
+      #halamanUtamaDesa li {
+        margin-bottom: 11px;
+      }
+      /* Header landing */
+      
+      /* Slider */
+      .slider-section {
+        max-width: 890px;
+        margin: 0 auto 49px;
+        border-radius: 13px;
+        box-shadow: 0 2px 17px #bcfcff44;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+      }
+      .swiper {
+        display: flex;
+        transition: transform 0.7s cubic-bezier(0.89, 0.44, 0.11, 1.06);
+        will-change: transform;
+        height: 265px;
+      }
+      .swiper img {
+        width: 100%;
+        object-fit: cover;
+        border-radius: 13px;
+        height: 265px;
+        pointer-events: none;
+        user-select: none;
+      }
+      .slide-caption {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background: rgba(33, 66, 99, 0.21);
+        color: white;
+        font-size: 20px;
+        padding: 14px 23px;
+        border-radius: 0 0 13px 13px;
+        text-shadow: 0 1px 7px rgb(27 27 27 / 50%);
+        user-select: none;
+      }
+      .slide-arrows {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        transform: translateY(-50%);
+        z-index: 3;
+        pointer-events: none;
+      }
+      .slide-arrow {
+        pointer-events: auto;
+        background: rgba(15, 52, 65, 0.66);
+        border: 0;
+        color: white;
+        font-size: 28px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        user-select: none;
+        line-height: 28px;
+        font-weight: 600;
+        transition: background 0.3s ease;
+      }
+      .slide-arrow:hover {
+        background: #008662;
+      }
+      /* Berita and Artikel Masonry Grid */
+      .berita-title {
+        margin: 0 auto 25px auto;
+        font-size: 1.7rem;
+        color: #177255;
+        font-weight: 700;
+        user-select: none;
+      }
+      .masonry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(315px, 1fr));
+        gap: 25px;
+      }
+      .news-card,
+      .article-card {
+        background: white;
+        border-radius: 11px;
+        box-shadow: 0 0 12px #dceeee53;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.25s ease, border-color 0.25s ease;
+        border: 2px solid #f0f7f9;
+        user-select: none;
+      }
+      .news-card:hover,
+      .article-card:hover {
+        box-shadow: 0 4px 20px #14cbb446;
+        border-color: #9cf2f1;
+      }
+      .news-card img,
+      .article-card img {
+        width: 100%;
+        max-height: 190px;
+        object-fit: cover;
+        pointer-events: none;
+        user-select: none;
+      }
+      .news-content {
+        padding: 18px 18px 10px 18px;
+        flex-grow: 1;
+      }
+      .news-meta {
+        color: #0b8778;
+        font-size: 13px;
+        user-select: none;
+      }
+      .news-headline {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #232f38;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .news-headline:hover {
+        text-decoration: underline;
+        color: #169d5c;
+      }
+      .news-body {
+        margin-top: 6px;
+        font-size: 15px;
+        color: #333;
+      }
+      /* Admin Berita */
+      .admin-berita-section {
+        max-width: 868px;
+        margin: 60px auto 36px;
+        background: #f2f8f8;
+        border-radius: 11px;
+        box-shadow: 0 1px 17px #d4ecee6a;
+        padding: 23px 27px;
+        user-select: none;
+      }
+      .admin-berita-section button {
+        margin-bottom: 20px;
+        font-size: 15px;
+        padding: 7px 17px;
+        border-radius: 7px;
+        background: #22936f;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      .admin-berita-section button:hover {
+        background: #007344;
+      }
+      .adminListGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+        gap: 20px;
+      }
+      .admin-card {
+        background: white;
+        padding: 16px 13px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 1px 8px #d4ecee48;
+        position: relative;
+        user-select: none;
+      }
+      .admin-card img {
+        width: 100%;
+        max-height: 100px;
+        border-radius: 7px;
+        object-fit: cover;
+        user-select: none;
+      }
+      .admin-card .btn-group {
+        margin-top: 13px;
+      }
+      .admin-card button {
+        font-size: 13px;
+        margin-right: 11px;
+        padding: 5px 12px;
+        border-radius: 6px;
+        border: 0;
+        cursor: pointer;
+      }
+      .admin-card .edit-btn {
+        background: #29ca9f;
+        color: white;
+      }
+      .admin-card .edit-btn:hover {
+        background: #139889;
+      }
+      .admin-card .delete-btn {
+        background: #dd4b49;
+        color: white;
+      }
+      .admin-card .delete-btn:hover {
+        background: #b32b27;
+      }
+      /* Modal form */
+      .modal-bg {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        background: rgba(30, 58, 78, 0.13);
+        z-index: 1099;
+      }
+      .modal-form {
+        background: white;
+        padding: 27px 24px 18px 24px;
+        border-radius: 9px;
+        min-width: 320px;
+        box-shadow: 0 1px 17px #bcfcff44;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .modal-form label {
+        font-size: 14px;
+        color: #17897c;
+        font-weight: 500;
+      }
+      .modal-form input,
+      .modal-form textarea,
+      .modal-form select {
+        width: 100%;
+        padding: 9px 8px;
+        border-radius: 6px;
+        border: 1.3px solid #cae8ea;
+        font-size: 13.7px;
+        resize: vertical;
+      }
+      .modal-form button {
+        margin-top: 13px;
+        padding: 10px 0;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        background: #169d5c;
+        color: white;
+        font-size: 17px;
+        font-weight: 700;
+        user-select: none;
+      }
+      .modal-form button[type="button"] {
+        background: white;
+        color: #22936f;
+        border: 1px solid #ddd;
+        margin-top: 0;
+      }
+      @media screen and (max-width: 900px) {
+        .hamburger.shifted {
+          left: 6px;
+        }
+        .sidebar {
+          width: 85vw;
+        }
+        .sidebar.closed {
+          transform: translateX(-100vw);
+        }
+        .main-content {
+          margin-left: 0;
+          padding: 15px 10px;
+        }
+        .masonry-grid {
+          grid-template-columns: 1fr !important;
+        }
+        
+      }
+      /* peta */
+      .peta-section {
+        max-width: 900px;
+        margin: 46px auto 24px auto;
+        background: white;
+        padding: 24px 32px 29px 32px;
+        border-radius: 13px;
+        box-shadow: 0 2px 22px #11cab636;
+        user-select: none;
+      }
+      #mapDesa {
+        width: 100%;
+        height: 350px;
+        border-radius: 11px;
+        margin-top: 17px;
+      }
+
+      /* LAYOUT DASHBOARD BARU */
+      
+
+      /* HERO */
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        gap: 32px;
+        align-items: center;
+        margin-bottom: 32px;
+        background: radial-gradient(circle at top left, #e9fff7, #f6f8fa);
+        border-radius: 18px;
+        padding: 28px 26px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+      }
+      .hero-left h1 {
+        font-size: 2.4rem;
+        margin: 10px 0 8px;
+        color: #12302a;
+      }
+      .hero-left p {
+        margin: 0 0 16px;
+        color: #435a52;
+        font-size: 15px;
+      }
+      .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(22, 157, 92, 0.08);
+        color: #16875e;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .btn-primary {
+        background: #169d5c;
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #0f7f4a;
+      }
+      .btn-outline {
+        background: transparent;
+        border: 1px solid #d2e9dd;
+        color: #166a4a;
+      }
+      .btn-outline:hover {
+        background: #e7fbf1;
+      }
+      .hero-stats {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .stat-item {
+        min-width: 110px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(15, 91, 66, 0.05);
+      }
+      .stat-item span {
+        display: block;
+        font-size: 22px;
+        font-weight: 700;
+        color: #158354;
+      }
+      .stat-item label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #688274;
+      }
+
+      /* HERO RIGHT */
+      .hero-right {
+        display: flex;
+        justify-content: center;
+      }
+      .hero-image-wrapper {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.18);
+      }
+      .hero-image-wrapper img {
+        display: block;
+        width: 100%;
+        max-height: 260px;
+        object-fit: cover;
+      }
+      .hero-badge {
+        position: absolute;
+        left: 14px;
+        bottom: 14px;
+        background: rgba(7, 41, 32, 0.86);
+        color: #f4fff9;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      #catatanWargaSection .catatan-wrapper{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+  gap:18px;
+  align-items:flex-start;
+}
+#catatanForm{
+  background:#ffffff;
+  border-radius:14px;
+  padding:14px 16px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.06);
+}
+#catatanForm .catatan-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:8px;
+}
+#catatanForm input,
+#catatanForm textarea{
+  width:100%;
+  padding:7px 9px;
+  border-radius:8px;
+  border:1px solid #cfe3da;
+  font-size:14px;
+  box-sizing:border-box;
+}
+#catatanForm textarea{
+  resize:vertical;
+  margin-bottom:8px;
+}
+#catatanForm button{
+  margin-top:4px;
+}
+
+#catatanList{
+  max-height:260px;
+  overflow-y:auto;
+  background:linear-gradient(180deg,#f4fff8,#e9f5ff);
+  border-radius:14px;
+  padding:10px 12px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.05);
+}
+.catatan-item{
+  background:#ffffff;
+  border-radius:10px;
+  padding:7px 9px;
+  margin-bottom:8px;
+  font-size:13.5px;
+  color:#394744;
+}
+.catatan-item-header{
+  display:flex;
+  justify-content:space-between;
+  gap:6px;
+  margin-bottom:2px;
+  font-size:12px;
+  color:#1b7452;
+}
+.catatan-item-tanggal{
+  font-size:12px;
+  color:#7a8883;
+  margin-bottom:2px;
+}
+.catatan-empty{
+  font-size:13px;
+  color:#6e7a75;
+  font-style:italic;
+}
+.catatan-item button{
+  font-size:11px;
+  padding:2px 7px;
+  border-radius:6px;
+  border:none;
+  background:#e74c3c;
+  color:#fff;
+  cursor:pointer;
+}
+@media(max-width:900px){
+  #catatanWargaSection .catatan-wrapper{
+    grid-template-columns:1fr;
+  }
+}
+
+      
+      /* PERBAIKI GRID BERITA/KEUNGGULAN AGAR MASUK DESAIN BARU */
+      .masonry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+      }
+      .news-card,
+      .article-card {
+        border-radius: 12px;
+      }
+      .news-content {
+        padding: 14px 15px 12px;
+      }
+      .news-meta {
+        font-size: 11px;
+      }
+      .news-headline {
+        font-size: 1rem;
+      }
+
+      #pageLoader {
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.82);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1300;
+        backdrop-filter: blur(2px);
+      }
+
+      .loader-circle{
+  width:90px;      /* dari 70px */
+  height:90px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,0.7);
+  box-shadow:0 0 0 0 rgba(22,157,92,0.4);
+  animation:pulseRing 1.8s ease-out infinite;
+  margin:0 auto 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.loader-logo{
+  width:150px;      /* dari 46px */
+  height:150px;
+  border-radius:14px;
+  overflow:hidden;
+  background:#ffffff;
+  box-shadow:0 6px 16px rgba(0,0,0,0.12);
+  animation:logoFloat 2.2s ease-in-out infinite;
+}
+
+.loader-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+
+      .loader-spinner {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 4px solid #d7f3e6;
+        border-top-color: #169d5c;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          padding: 22px 18px;
+        }
+        main#dashboardPage {
+          padding: 18px 14px 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="pageLoader">
+  <div class="loader-inner">
+    <div class="loader-circle"></div>
+    <div class="loader-logo">
+      <img src="Logo-Kajor-Kulon.png" alt="Logo Desa Kajor Kulon" />
+    </div>
+    <p class="loader-text">Memuat dashboard desa...</p>
+  </div>
+</div>
+
+
+    <div class="hamburger" id="hamburgerBtn"><i class="fa fa-bars"></i></div>
+    <div class="sidebar closed" id="sidebarNav">
+      <div class="logo">Desa Kajor Kulon</div>
+      <ul class="menu">
+        <li>
+          <a
+            href="#"
+            class="menu-item active"
+            onclick="showSection('dashboard')"
+          >
+            <i class="fa fa-home"></i> Beranda
+          </a>
+        </li>
+        <li>
+          <a href="#" class="menu-item" onclick="showSection('kependudukan')">
+            <i class="fa fa-users"></i> Kependudukan
+          </a>
+        </li>
+        <li>
+          <a href="#" class="menu-item" onclick="showSection('suratDinas')">
+            <i class="fa fa-envelope"></i> Surat Dinas
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="menu-item"
+            onclick="showSection('layananSuratSection')"
+          >
+            <i class="fa fa-inbox"></i> Layanan Surat
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="menu-item"
+            onclick="showSection('keunggulanSection')"
+          >
+            <i class="fa fa-images"></i> Keunggulan
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="menu-item"
+            onclick="showSection('mapsdesaSection')"
+          >
+            <i class="fa fa-map-marked"></i> Peta Desa
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="menu-item"
+            onclick="showSection('kelolaBeritaSection')"
+          >
+            <i class="fa fa-newspaper"></i> Kelola Berita/Artikel
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="main-content">
+<main id="dashboard" class="main-section">
+  <!-- HERO UTAMA -->
+  <section id="heroDashboard">
+    <div class="hero-left">
+      <span class="hero-pill">Dukuh Kajor Kulon · Imogiri</span>
+      <h1>Beranda Desa Digital</h1>
+      <p>
+        Lihat sekilas sejarah, kondisi geografis, data penduduk, dan program
+        unggulan Dusun Kajor Kulon dalam satu tampilan.
+      </p>
+      <div class="hero-actions">
+        <button onclick="showSection('kependudukan')">
+          <i class="fa fa-users"></i> Data Kependudukan
+        </button>
+        <button onclick="showSection('mapsdesaSection')">
+          <i class="fa fa-map-marked"></i> Peta & Wilayah
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span>6</span>
+          <label>RT</label>
+        </div>
+        <div class="stat-item">
+          <span>±731</span>
+          <label>Jiwa</label>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-logo-box">
+        <img src="Logo-Kajor-Kulon.png" alt="Logo Dusun Kajor Kulon" />
+        <div class="hero-logo-caption">
+          Tangguh · Hijau · Berdaya
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROFIL DUSUN -->
+  <section id="profilDusun">
+    <header>
+      <h2>Profil Dusun Kajor Kulon</h2>
+      <p>Sejarah singkat, letak geografis, dan karakter wilayah.</p>
+    </header>
+    <div class="info-grid">
+      <article class="info-card" id="profilSejarah">
+        <h3>Sejarah Dusun</h3>
+        <p>
+          Kajor Kulon tumbuh sebagai permukiman agraris di jalur menuju kawasan
+          Imogiri, dengan tradisi gotong royong dan budaya Jawa yang tetap
+          dijaga oleh warga.
+        </p>
+      </article>
+      <article class="info-card" id="profilGeografi">
+        <h3>Geografi & Iklim</h3>
+        <p>
+          Berada di perbukitan Imogiri dengan kombinasi lahan persawahan,
+          pekarangan, dan aliran sungai kecil yang menopang aktivitas
+          pertanian sehari-hari.
+        </p>
+      </article>
+      <article class="info-card" id="profilPenduduk">
+        <h3>Kependudukan</h3>
+        <p>
+          Penduduk tersebar dalam beberapa RT dengan komposisi usia produktif
+          yang besar, menjadi modal penggerak kegiatan desa.
+        </p>
+      </article>
+      <article class="info-card" id="profilInfrastruktur">
+        <h3>Infrastruktur</h3>
+        <p>
+          Jalan lingkungan, sarana ibadah, pos ronda, dan fasilitas pendidikan
+          dasar tersedia untuk menunjang aktivitas warga.
+        </p>
+      </article>
+    </div>
+  </section>
+  
+  <!-- POTENSI & PROGRAM UNGGULAN -->
+  <section id="potensiProgram">
+    <header>
+      <h2>Potensi & Program Unggulan</h2>
+      <p>Aktivitas dan keunggulan yang menjadi kebanggaan dusun.</p>
+    </header>
+    <div class="potensi-grid">
+      <article class="potensi-card">
+        <h3>Pertanian Lahan Kering</h3>
+        <p>
+          Pengembangan padi, palawija, dan hortikultura dengan teknologi
+          irigasi sederhana dan pemanfaatan pupuk organik.
+        </p>
+      </article>
+      <article class="potensi-card">
+        <h3>UMKM & Produk Lokal</h3>
+        <p>
+          Usaha rumahan seperti olahan pangan, kerajinan, dan jasa menjadi
+          sumber penghasilan tambahan keluarga.
+        </p>
+      </article>
+      <article class="potensi-card">
+        <h3>Potensi Wisata</h3>
+        <p>
+          Lanskap perbukitan dan jalur alternatif menuju kawasan wisata Imogiri
+          berpotensi dikembangkan sebagai wisata alam dan edukasi.
+        </p>
+      </article>
+      <article class="potensi-card">
+        <h3>Gerakan Sosial</h3>
+        <p>
+          Karang taruna, PKK, dan kelompok tani aktif menginisiasi program
+          sosial, lingkungan, dan pendidikan nonformal.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- KEGIATAN RUTIN (TIMELINE SEDERHANA) -->
+  <section id="kegiatanRutin">
+    <header>
+      <h2>Kegiatan Rutin Dusun</h2>
+      <p>Agenda yang menjaga dusun tetap bersih, aman, dan guyub.</p>
+    </header>
+    <div class="timeline">
+      <article class="timeline-item">
+        <h3>Kerja Bakti Bulanan</h3>
+        <p>
+          Warga membersihkan jalan, selokan, dan fasilitas umum bersama sebagai
+          bentuk kepedulian terhadap lingkungan.
+        </p>
+      </article>
+      <article class="timeline-item">
+        <h3>Posyandu & Kesehatan</h3>
+        <p>
+          Penimbangan balita, pemeriksaan ibu hamil, dan penyuluhan kesehatan
+          rutin oleh kader dan tenaga kesehatan.
+        </p>
+      </article>
+      <article class="timeline-item">
+        <h3>Forum Remaja & Literasi Digital</h3>
+        <p>
+          Pertemuan pemuda untuk pelatihan teknologi, diskusi kewirausahaan,
+          dan persiapan kegiatan sosial desa.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- KONTAK & INFORMASI -->
+  <section id="kontakDusun">
+    <div class="kontak-left">
+      <h2>Kontak & Informasi Layanan</h2>
+      <p>
+        Untuk pengurusan administrasi, permohonan surat, atau info program
+        desa, silakan hubungi perangkat dusun melalui kanal berikut.
+      </p>
+      <ul>
+        <li>Dukuh Kajor Kulon – Kantor Dusun</li>
+        <li>Telp/WA: 08xx-xxxx-xxxx</li>
+        <li>Lokasi: Imogiri, Bantul, DI Yogyakarta</li>
+      </ul>
+      <button onclick="showSection('layananSuratSection')">
+        Buka Layanan Surat
+      </button>
+    </div>
+    <div class="kontak-right">
+      <h3>Tips Penggunaan Aplikasi</h3>
+      <p>
+        Gunakan menu di kiri untuk berpindah fitur, simpan data secara
+        berkala, dan manfaatkan menu Kelola Berita untuk publikasi kegiatan.
+      </p>
+    </div>
+  </section>
+
+ <section id="catatanWargaSection">
+  <header>
+    <h2>Catatan & Masukan Warga</h2>
+    <p>Warga dapat menulis saran singkat terkait layanan atau kondisi dusun.</p>
+  </header>
+  <div class="catatan-wrapper">
+    <form id="catatanForm">
+      <div class="catatan-row">
+        <input
+          type="text"
+          name="nama"
+          placeholder="Nama / Inisial"
+          required
+        />
+        <input
+          type="text"
+          name="rt"
+          placeholder="RT (opsional)"
+        />
+      </div>
+      <textarea
+        name="isi"
+        rows="3"
+        placeholder="Tulis catatan, masukan, atau saran singkat di sini..."
+        required
+      ></textarea>
+      <button type="submit">
+        Kirim Catatan
+      </button>
+    </form>
+
+    <div id="catatanList">
+      <!-- daftar catatan dari localStorage -->
+    </div>
+  </div>
+</section>
+</main>
+
+
+      </main>
+
+      <section id="kependudukan" class="main-section" style="display: none">
+        <h2 style="color: #24a464">Data Kependudukan</h2>
+        <button class="btn-green" onclick="showForm()">
+          Tambah Data Dusun
+        </button>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Aksi</th>
+              <th>Dusun</th>
+              <th>NIK</th>
+              <th>RW</th>
+              <th>RT</th>
+              <th>KK</th>
+              <th>LP</th>
+              <th>L</th>
+              <th>P</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">Total</td>
+              <td id="total-nik">0</td>
+              <td id="total-rw">0</td>
+              <td id="total-rt">0</td>
+              <td id="total-kk">0</td>
+              <td id="total-lp">0</td>
+              <td id="total-l">0</td>
+              <td id="total-p">0</td>
+            </tr>
+          </tfoot>
+        </table>
+        <!-- Modal form tambah/edit data dusun -->
+        <div id="form-modal">
+          <form id="admin-form" onsubmit="saveData(event)">
+            <h3>Tambah Data Dusun</h3>
+            <input type="text" name="dusun" placeholder="Nama Dusun" required />
+            <input type="number" name="nik" placeholder="NIK" required />
+            <input type="number" name="rw" placeholder="RW" required />
+            <input type="number" name="rt" placeholder="RT" required />
+            <input type="number" name="kk" placeholder="KK" required />
+            <input type="number" name="lp" placeholder="LP" required />
+            <input type="number" name="l" placeholder="L" required />
+            <input type="number" name="p" placeholder="P" required />
+            <button type="submit">Simpan</button>
+            <button type="button" onclick="closeForm()">Batal</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Section Surat Dinas -->
+      <section id="suratDinas" class="main-section" style="display: none">
+        <div class="admin-section no-print">
+          <div class="toolbar" style="margin-bottom: 10px">
+            <button class="btn btn-green" onclick="showFormPengaturan()">
+              Tambah Surat
+            </button>
+            <button class="btn btn-danger" onclick="hapusSuratTerpilih()">
+              Hapus Surat
+            </button>
+            <button class="btn btn-blue" onclick="eksporImporSurat()">
+              Impor/Ekspor
+            </button>
+            <button class="btn" onclick="pengaturanSurat()">Pengaturan</button>
+          </div>
+          <input
+            class="toolbar"
+            id="searchSurat"
+            oninput="renderDaftarSurat()"
+            placeholder="kata kunci"
+          />
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>
+                  <input type="checkbox" onclick="toggleAllPengaturan(this)" />
+                </th>
+                <th>No</th>
+                <th>Aksi</th>
+                <th>Nama Surat</th>
+                <th>Kode/Klasifikasi</th>
+                <th>Lampiran</th>
+              </tr>
+            </thead>
+            <tbody id="tblPengaturanSurat"></tbody>
+          </table>
+        </div>
+        <!-- Modal Form Template Surat (CRUD) -->
+        <div
+          class="modal-bg"
+          id="modalPengaturan"
+          style="display: none"
+          onclick="if(event.target==this)hideModalPengaturan()"
+        >
+          <form class="modal-card" onsubmit="savePengaturanSurat(event)">
+            <h4>Form Template Surat</h4>
+            <label>Nama Surat</label>
+            <input name="nama" id="formNama" required />
+            <label>Kode/Klasifikasi</label>
+            <input name="kode" id="formKode" />
+            <label>Lampiran</label>
+            <input name="lampiran" id="formLampiran" />
+            <label>Perihal</label>
+            <input name="perihal" id="formPerihal" required />
+            <label>Isi Undangan</label>
+            <textarea name="isi" id="formIsi" rows="6" required></textarea>
+            <button class="btn btn-green" type="submit">Simpan</button>
+            <button class="btn" type="button" onclick="hideModalPengaturan()">
+              Batal
+            </button>
+          </form>
+        </div>
+        <!-- Panel Cetak Surat -->
+        <div id="panelCetakSurat" style="display: none">
+          <form
+            class="isian-form surat-wrap"
+            oninput="updatePreviewSurat()"
+            onsubmit="arsipkanSurat(event)"
+          >
+            <label>Nomor Surat</label>
+            <input id="inputNomorSurat" required />
+            <label>Perihal</label>
+            <input id="inputPerihal" required />
+            <label>Tanggal Surat</label>
+            <input type="date" id="inputTanggalSurat" required />
+            <label>Kepada</label>
+            <input id="inputKepada" required />
+            <label>Isi Surat</label>
+            <textarea id="inputIsiSurat" required></textarea>
+            <button
+              class="btn btn-green"
+              type="submit"
+              style="margin-left: 16px"
+            >
+              Arsipkan & Cetak
+            </button>
+            <button
+              class="btn btn-blue"
+              type="button"
+              onclick="modalCetakAktif()"
+            >
+              Pratinjau Surat
+            </button>
+            <button class="btn" type="button" onclick="tutupPanelCetak()">
+              Kembali
+            </button>
+          </form>
+          <div id="previewCetakSurat" class="preview"></div>
+        </div>
+      </section>
+      <section
+        id="layananSuratSection"
+        class="main-section"
+        style="display: none"
+      >
+        <h2>Layanan Surat</h2>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Surat</th>
+              <th>Tanggal</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="daftarLayananSurat"></tbody>
+        </table>
+        <button
+          id="btnCetakSurat"
+          class="btn btn-green"
+          onclick="modalCetakAktif()"
+          disabled
+        >
+          Cetak/Download
+        </button>
+      </section>
+
+      <section
+        id="keunggulanSection"
+        class="main-section"
+        style="display: none; padding: 32px 0"
+      >
+        <h2 style="text-align: center; color: #23a158; margin-bottom: 16px">
+          Keunggulan Desa Kajor Kulon
+        </h2>
+        <div id="unggulanGrid" class="unggulan-grid"></div>
+      </section>
+
+      <section
+        id="beritaSection"
+        class="main-section"
+        style="display: none; padding: 36px 0"
+      >
+        <h2 style="text-align: center; color: #16875e; margin-bottom: 8px">
+          Berita Terkini Desa Kajor Kulon
+        </h2>
+        <p
+          style="
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 25px;
+          "
+        >
+          Info & kabar penting seputar kegiatan, layanan, dan inovasi desa.
+        </p>
+        <div id="beritaGrid" class="berita-grid"></div>
+      </section>
+
+      <section
+        id="artikelSection"
+        class="main-section"
+        style="display: none; padding: 36px 0"
+      >
+        <h2 style="text-align: center; color: #1c8e65; margin-bottom: 8px">
+          Artikel & Info Desa
+        </h2>
+        <div id="artikelGrid" class="artikel-grid"></div>
+      </section>
+
+      <section id="mapsdesaSection" class="main-section" style="display: none">
+        <h2 style="text-align: center; color: #1589c9; margin: 22px 0 14px 0">
+          Peta Wilayah Kajor Kulon & 6 RT (Imogiri, Bantul)
+        </h2>
+        <div
+          id="mapsContainer"
+          style="
+            width: 100%;
+            max-width: 950px;
+            height: 450px;
+            margin: 0 auto 30px auto;
+            border-radius: 13px;
+            overflow: hidden;
+            box-shadow: 0 2px 16px #3b9be16a;
+          "
+        ></div>
+        <p style="text-align: center; color: #444">
+          Pilih tipe map di pojok kanan &#9776;. Klik tiap RT untuk info,
+          geser/perbesar peta, atau tambahkan file GeoJSON asli jika ada.
+        </p>
+      </section>
+      <!-- ADMIN KELola BERITA/ARTIKEL -->
+      <section
+        id="kelolaBeritaSection"
+        class="main-section"
+        style="display: none; padding: 32px 0"
+      >
+        <h2>Kelola Berita/Artikel</h2>
+        <form id="formBerita" style="max-width: 450px; margin: 20px auto">
+          <label
+            >Judul<br />
+            <input
+              type="text"
+              name="title"
+              required
+              style="width: 100%"
+            /> </label
+          ><br />
+          <label
+            >Penulis<br />
+            <input
+              type="text"
+              name="author"
+              required
+              style="width: 100%"
+            /> </label
+          ><br />
+          <label
+            >Kategori<br />
+            <select name="kategori" required>
+              <option value="berita">Berita</option>
+              <option value="artikel">Artikel</option>
+            </select> </label
+          ><br />
+          <label
+            >Tanggal<br />
+            <input
+              type="date"
+              name="date"
+              required
+              style="width: 100%"
+            /> </label
+          ><br />
+          <label
+            >Gambar (URL)<br />
+            <input
+              type="text"
+              name="img"
+              placeholder="https://..."
+              required
+              style="width: 100%"
+            /> </label
+          ><br />
+          <label
+            >Ringkasan<br />
+            <textarea
+              name="desc"
+              required
+              style="width: 100%"
+            ></textarea></label
+          ><br />
+          <button type="submit">Tambah</button>
+        </form>
+        <div id="daftarBeritaAdmin"></div>
+      </section>
+      <!-- Tambahkan sebelum </body> -->
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
+      />
+      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    </div>
+    <div class="modal-bg" id="modalBerita">
+      <form class="modal-form" onsubmit="saveBerita(event)">
+        <h3 id="modalJudul">Tambah Berita/Artikel</h3>
+        <label>Judul</label>
+        <input type="text" id="inputJudul" required />
+        <label>Gambar (URL/link)</label>
+        <input
+          type="text"
+          id="inputGambar"
+          placeholder="Contoh: https://..."
+          required
+        />
+        <label>Penulis</label>
+        <input type="text" id="inputPenulis" required />
+        <label>Tanggal</label>
+        <input type="date" id="inputTanggal" required />
+        <label>Isi</label>
+        <textarea id="inputIsi" rows="3" required></textarea>
+        <label>Kategori</label>
+        <select id="inputKategori">
+          <option value="berita">Berita</option>
+          <option value="artikel">Artikel</option>
+        </select>
+        <button type="submit">Simpan</button>
+        <button type="button" onclick="closeModal(event)">Batal</button>
+      </form>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      // Sidebar toggle
+      const sidebar = document.getElementById("sidebarNav");
+      const hamburgerBtn = document.getElementById("hamburgerBtn");
+      hamburgerBtn.onclick = () => {
+        sidebar.classList.toggle("closed");
+        hamburgerBtn.classList.toggle("shifted");
+      };
+
+      // Show/hide sections based on menu
+      function showSection(sectionId) {
+        const allSections = [
+          "kependudukan",
+          "suratDinas",
+          "sliderSection",
+          "beritaSection",
+          "artikelSection",
+          "mapsdesaSection",
+          "kelolaBeritaSection",
+        ];
+        allSections.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = id === sectionId ? "block" : "none";
+        });
+
+        // Update active menu item
+        document.querySelectorAll(".menu-item").forEach((el) => {
+          el.classList.toggle(
+            "active",
+            el.getAttribute("onclick") === `showSection('${sectionId}')`
+          );
+        });
+
+        // Load data per section
+        if (sectionId === "") renderSlider();
+        if (sectionId === "beritaSection") renderBerita();
+        if (sectionId === "artikelSection") renderArtikel();
+        if (sectionId === "kelolaBeritaSection") renderAdminList();
+        if (sectionId === "mapsdesaSection") initMap();
+      }
+      let dataDusun = [];
+      let currentEdit = null;
+
+      function showForm(index = null) {
+        const modal = document.getElementById("form-modal");
+        modal.style.display = "flex";
+        currentEdit = index;
+        const form = document.getElementById("admin-form");
+        if (index !== null) {
+          const entry = dataDusun[index];
+          form.dusun.value = entry.dusun;
+          form.nik.value = entry.nik;
+          form.rw.value = entry.rw;
+          form.rt.value = entry.rt;
+          form.kk.value = entry.kk;
+          form.lp.value = entry.lp;
+          form.l.value = entry.l;
+          form.p.value = entry.p;
+        } else {
+          form.reset();
+        }
+      }
+      function closeForm() {
+        document.getElementById("form-modal").style.display = "none";
+      }
+      function saveData(event) {
+        event.preventDefault();
+        const form = event.target;
+        const entry = {
+          dusun: form.dusun.value,
+          nik: form.nik.value,
+          rw: form.rw.value,
+          rt: form.rt.value,
+          kk: form.kk.value,
+          lp: form.lp.value,
+          l: form.l.value,
+          p: form.p.value,
+        };
+        if (currentEdit !== null) {
+          dataDusun[currentEdit] = entry;
+        } else {
+          dataDusun.push(entry);
+        }
+        closeForm();
+        updateTable();
+      }
+      function updateTable() {
+        const tbody = document.getElementById("table-body");
+        tbody.innerHTML = "";
+        let totals = { nik: 0, rw: 0, rt: 0, kk: 0, lp: 0, l: 0, p: 0 };
+        dataDusun.forEach((entry, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>
+          <button onclick="showForm(${idx})">Edit</button>
+          <button class="btn-danger" onclick="deleteRow(${idx})">Hapus</button>
+        </td>
+        <td>${entry.dusun}</td><td>${entry.nik}</td><td>${entry.rw}</td><td>${
+            entry.rt
+          }</td><td>${entry.kk}</td><td>${entry.lp}</td><td>${
+            entry.l
+          }</td><td>${entry.p}</td>
+      `;
+          tbody.appendChild(tr);
+          totals.nik += Number(entry.nik);
+          totals.rw += Number(entry.rw);
+          totals.rt += Number(entry.rt);
+          totals.kk += Number(entry.kk);
+          totals.lp += Number(entry.lp);
+          totals.l += Number(entry.l);
+          totals.p += Number(entry.p);
+        });
+        // Update totals display
+        document.getElementById("total-nik").textContent = totals.nik;
+        document.getElementById("total-rw").textContent = totals.rw;
+        document.getElementById("total-rt").textContent = totals.rt;
+        document.getElementById("total-kk").textContent = totals.kk;
+        document.getElementById("total-lp").textContent = totals.lp;
+        document.getElementById("total-l").textContent = totals.l;
+        document.getElementById("total-p").textContent = totals.p;
+      }
+      function deleteRow(idx) {
+        if (confirm("Yakin ingin hapus data ini?")) {
+          dataDusun.splice(idx, 1);
+          updateTable();
+        }
+      }
+
+      // Surat Dinas
+      // Surat dinas data
+      let daftarSurat = JSON.parse(
+        localStorage.getItem("daftarSuratDinas") || "[]"
+      );
+      let editingIdx = null;
+
+      function renderDaftarSurat() {
+        const tbody = document.getElementById("tblPengaturanSurat");
+        const keyword = document
+          .getElementById("searchSurat")
+          .value.toLowerCase();
+        let filtered = daftarSurat.filter(
+          (d) =>
+            d.nama.toLowerCase().includes(keyword) ||
+            (d.kode && d.kode.toLowerCase().includes(keyword))
+        );
+        if (filtered.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="6" style="text-align:center;">Tidak ada data yang tersedia pada tabel</td></tr>';
+          return;
+        }
+        tbody.innerHTML = filtered
+          .map(
+            (d, idx) => `
+    <tr>
+      <td><input type="checkbox" data-idx="${idx}"></td>
+      <td>${idx + 1}</td>
+      <td>
+        <button class="btn btn-blue" onclick="showFormPengaturan(${idx})"><i class="fa fa-edit"></i></button>
+        <button class="btn btn-green" onclick="langsungCetakSurat(${idx})"><i class="fa fa-print"></i></button>
+        <button class="btn btn-danger" onclick="hapusSuratPengaturan(${idx})"><i class="fa fa-trash"></i></button>
+      </td>
+      <td>${d.nama}</td>
+      <td>${d.kode}</td>
+      <td>${d.lampiran}</td>
+    </tr>
+  `
+          )
+          .join("");
+      }
+
+      function showFormPengaturan(idx = null) {
+        const modal = document.getElementById("modalPengaturan");
+        const form = modal.querySelector("form");
+        editingIdx = idx;
+        modal.style.display = "flex";
+        if (idx !== null) {
+          let surat = daftarSurat[idx];
+          form.nama.value = surat.nama;
+          form.kode.value = surat.kode;
+          form.lampiran.value = surat.lampiran;
+          form.perihal.value = surat.perihal;
+          form.isi.value = surat.isi;
+        } else {
+          form.reset();
+        }
+      }
+      function hideModalPengaturan() {
+        document.getElementById("modalPengaturan").style.display = "none";
+      }
+      function savePengaturanSurat(e) {
+        e.preventDefault();
+        let f = e.target;
+        let surat = {
+          nama: f.nama.value,
+          kode: f.kode.value,
+          lampiran: f.lampiran.value,
+          perihal: f.perihal.value,
+          isi: f.isi.value,
+        };
+        if (editingIdx !== null) {
+          daftarSurat[editingIdx] = surat;
+        } else {
+          daftarSurat.push(surat);
+        }
+        localStorage.setItem("daftarSuratDinas", JSON.stringify(daftarSurat));
+        hideModalPengaturan();
+        renderDaftarSurat();
+      }
+      function hapusSuratPengaturan(idx) {
+        if (!confirm("Yakin hapus data surat ini?")) return;
+        daftarSurat.splice(idx, 1);
+        localStorage.setItem("daftarSuratDinas", JSON.stringify(daftarSurat));
+        renderDaftarSurat();
+      }
+      function toggleAllPengaturan(masterCheckbox) {
+        document
+          .querySelectorAll("#tblPengaturanSurat input[type='checkbox']")
+          .forEach((cb) => (cb.checked = masterCheckbox.checked));
+      }
+      function hapusSuratTerpilih() {
+        let checkboxes = document.querySelectorAll(
+          "#tblPengaturanSurat input[type='checkbox']:checked"
+        );
+        let toDelete = [...checkboxes].map((cb) => Number(cb.dataset.idx));
+        if (toDelete.length === 0) {
+          alert("Tidak ada surat yang dipilih.");
+          return;
+        }
+        if (!confirm(`Yakin hapus ${toDelete.length} surat?`)) return;
+        toDelete
+          .sort((a, b) => b - a)
+          .forEach((idx) => daftarSurat.splice(idx, 1));
+        localStorage.setItem("daftarSuratDinas", JSON.stringify(daftarSurat));
+        renderDaftarSurat();
+      }
+
+      function langsungCetakSurat(idx) {
+        document.getElementById("panelCetakSurat").style.display = "block";
+        let surat = daftarSurat[idx];
+        document.getElementById("inputNomorSurat").value = surat.kode || "";
+        document.getElementById("inputPerihal").value = surat.perihal || "";
+        document.getElementById("inputTanggalSurat").value = new Date()
+          .toISOString()
+          .substr(0, 10);
+        document.getElementById("inputKepada").value =
+          "Para Ketua RT Dusun Kajor Kulon"; // bisa dinamis
+        document.getElementById("inputIsiSurat").value = surat.isi || "";
+        updatePreviewSurat();
+      }
+      function tutupPanelCetak() {
+        document.getElementById("panelCetakSurat").style.display = "none";
+      }
+
+      // Preview output 100% mirip surat asli
+      function updatePreviewSurat() {
+        const nomorSurat = document.getElementById("inputNomorSurat").value;
+        const perihal = document.getElementById("inputPerihal").value;
+        const tanggalSurat = document.getElementById("inputTanggalSurat").value;
+        const kepada = document
+          .getElementById("inputKepada")
+          .value.replace(/\n/g, "<br>");
+        const isi = document.getElementById("inputIsiSurat").value;
+        let tglCetak = tanggalSurat ? new Date(tanggalSurat) : new Date();
+        let bulanID = tglCetak.toLocaleString("id-ID", { month: "long" });
+        let tempat = "Ginanjar";
+        document.getElementById("previewCetakSurat").innerHTML = `
+  <div style="text-align:center;font-weight:bold;">
+    <img src="logo_desa.png" style="width:90px;float:left;margin-right:14px;">
+    <div style="font-size:18px;">PEMERINTAH KABUPATEN BANTUL<br>KECAMATAN IMOGIRI<br>RUMAH BAPAK DUKUH JUARI</div>
+    <div style="font-size:14px;margin-bottom:8px;">Kalurahan Selopamioro, Kapanewon Imogiri, Kabupaten Bantul, Daerah Istimewa Yogyakarta</div>
+    <div style="border-bottom:2px solid #333;width:95%;margin:0 auto 12px auto;"></div>
+  </div>
+  <table style="margin-bottom:8px;">
+    <tr>
+      <td>Nomor</td><td>: ${nomorSurat}</td>
+      <td style="padding-left:30px;">${tempat}, ${tglCetak.getDate()} ${bulanID} ${tglCetak.getFullYear()}</td>
+    </tr>
+    <tr>
+      <td>Lampiran</td><td>: -</td>
+    </tr>
+    <tr>
+      <td>Perihal</td><td>: ${perihal}</td>
+    </tr>
+  </table>
+  <div>Kepada Yth.<br>${kepada}<br>Di Tempat</div>
+  <br>
+  <div>Dengan hormat,<br>${isi}</div><br>
+  <table style="margin:10px 0;">
+    <tr><td>Hari</td><td>: Sabtu</td></tr>
+    <tr><td>Tanggal</td><td>: ${tglCetak.getDate()} ${bulanID} ${tglCetak.getFullYear()}</td></tr>
+    <tr><td>Waktu</td><td>: Pukul 08.00 s/d Selesai</td></tr>
+    <tr><td>Tempat</td><td>: Balai Dusun Kajor Kulon</td></tr>
+  </table>
+  <div style="margin-top:20px;">Demi kelancaran acara tersebut diharapkan para RT mempersiapkan data<br>Penduduk di wilayah masing masing sesuai keadaan terbaru.<br><br>
+    Ginanjar, ${tglCetak.getDate()} ${bulanID} ${tglCetak.getFullYear()}<br>
+    Bapak Dusun Kajor Kulon<br><br><br>
+    <b>Juari S.Pd I</b>
+  </div>
+  `;
+      }
+
+      // Cetak surat - hanya panel preview yang tampil ditampilan print
+      function modalCetakAktif() {
+        window.print();
+      }
+
+      // Arsipkan surat
+      function arsipkanSurat(e) {
+        e.preventDefault();
+        alert("Surat berhasil diarsipkan!"); // Replace with any proper archive logic if needed
+        tutupPanelCetak();
+      }
+      function renderLayananSurat() {
+        let layananSurat = JSON.parse(
+          localStorage.getItem("layananSurat") || "[]"
+        );
+        let tbody = document.getElementById("daftarLayananSurat");
+        if (!tbody) return;
+        if (!layananSurat.length) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" style="text-align:center;">Belum ada surat</td></tr>';
+          return;
+        }
+        tbody.innerHTML = layananSurat
+          .map(
+            (s, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${s.nama}</td>
+      <td>${s.tanggal}</td>
+      <td>
+        <span style="font-weight:600;color:${
+          s.status === "Sudah ACC Dukuh" ? "green" : "darkorange"
+        };">${s.status}</span>
+      </td>
+      <td>
+        <button class="btn" onclick="accSurat(${i})">ACC Dukuh</button>
+        ${
+          s.status === "Sudah ACC Dukuh"
+            ? `<button class="btn btn-green" onclick="bukaCetakSurat(${i})">Cetak</button>`
+            : ""
+        }
+      </td>
+    </tr>
+  `
+          )
+          .join("");
+      }
+      function accSurat(idx) {
+        let layananSurat = JSON.parse(
+          localStorage.getItem("layananSurat") || "[]"
+        );
+        layananSurat[idx].status = "Sudah ACC Dukuh";
+        localStorage.setItem("layananSurat", JSON.stringify(layananSurat));
+        renderLayananSurat();
+      }
+
+      function bukaCetakSurat(idx) {
+        // Isi form cetak menggunakan surat yang sudah di ACC
+        let layananSurat = JSON.parse(
+          localStorage.getItem("layananSurat") || "[]"
+        );
+        let s = layananSurat[idx];
+        showSection("suratDinas");
+        document.getElementById("panelCetakSurat").style.display = "block";
+        document.getElementById("inputPerihal").value = s.nama;
+        document.getElementById("inputNomorSurat").value = s.nomor;
+        document.getElementById("inputTanggalSurat").value = s.tanggal;
+        document.getElementById("inputKepada").value = s.kepada;
+        document.getElementById("inputIsiSurat").value = s.isi;
+        document.getElementById("btnCetakSurat").disabled = false;
+        updatePreviewSurat(); // jika ada
+      }
+
+      function showSection(sectionId) {
+        document
+          .querySelectorAll(".main-section")
+          .forEach((s) => (s.style.display = "none"));
+        let sec = document.getElementById(sectionId);
+        if (sec) sec.style.display = "block";
+        if (sectionId === "mapsdesaSection")
+          setTimeout(renderMapKajorKulon, 10);
+      }
+      // Admin Berita CRUD
+      function renderAdminList() {
+        const data = getBeritaData();
+        const container = document.getElementById("adminList");
+        if (!container) return;
+        container.innerHTML = data
+          .map(
+            (b, i) => `
+    <div class="admin-card" draggable="false">
+      <img src="${b.gambar}" alt="" draggable="false"/>
+      <div style="font-weight: bold; margin-top: 6px">${b.judul}</div>
+      <div class="news-meta">${b.tanggal} | ${
+              b.penulis
+            } <span style="float:right; color:#25c982;">${
+              b.kategori
+            }</span></div>
+      <div style="font-size: 13px; color: #4b5957; margin: 9px 0 6px 0;">${b.isi.slice(
+        0,
+        76
+      )}...</div>
+      <div class="btn-group">
+        <button class="edit-btn" onclick="openModal(${i})"><i class="fa fa-pencil"></i> Edit</button>
+        <button class="delete-btn" onclick="deleteBerita(${i})"><i class="fa fa-trash"></i> Hapus</button>
+      </div>
+    </div>`
+          )
+          .join("");
+      }
+
+      let editIdx = -1;
+      function openModal(idx) {
+        editIdx = idx;
+        document.getElementById("modalBerita").style.display = "flex";
+        if (idx >= 0) {
+          const b = getBeritaData()[idx];
+          document.getElementById("inputJudul").value = b.judul;
+          document.getElementById("inputGambar").value = b.gambar;
+          document.getElementById("inputPenulis").value = b.penulis;
+          document.getElementById("inputTanggal").value = b.tanggal;
+          document.getElementById("inputIsi").value = b.isi;
+          document.getElementById("inputKategori").value = b.kategori;
+          document.getElementById("modalJudul").textContent =
+            "Edit Berita/Artikel";
+        } else {
+          document.querySelector(".modal-form").reset();
+          document.getElementById("modalJudul").textContent =
+            "Tambah Berita/Artikel";
+        }
+      }
+      function closeModal(e) {
+        if (e) e.preventDefault();
+        document.getElementById("modalBerita").style.display = "none";
+      }
+      function saveBerita(e) {
+        e.preventDefault();
+        let data = getBeritaData();
+        const obj = {
+          judul: document.getElementById("inputJudul").value,
+          gambar: document.getElementById("inputGambar").value,
+          penulis: document.getElementById("inputPenulis").value,
+          tanggal: document.getElementById("inputTanggal").value,
+          isi: document.getElementById("inputIsi").value,
+          kategori: document.getElementById("inputKategori").value,
+        };
+        if (editIdx >= 0) data[editIdx] = obj;
+        else data.unshift(obj);
+        localStorage.setItem("ka_news_pro_v2", JSON.stringify(data));
+        closeModal();
+        renderAdminList();
+      }
+      function deleteBerita(idx) {
+        if (!confirm("Hapus data ini?")) return;
+        let data = getBeritaData();
+        data.splice(idx, 1);
+        localStorage.setItem("ka_news_pro_v2", JSON.stringify(data));
+        renderAdminList();
+      }
+      document.getElementById("modalBerita").onclick = function (e) {
+        if (e.target === this) closeModal();
+      };
+
+      // Peta Desa
+      function renderMapKajorKulon() {
+        // Hapus map lama pada reload menu
+        if (window._desaMap && window._desaMap.remove) window._desaMap.remove();
+
+        // CENTER sesuai Google Maps lokasi Kajor Kulon
+        const CENTER = [-7.9409068, 110.3981425];
+        window._desaMap = L.map("mapsContainer").setView(CENTER, 16);
+
+        // Basemap/layer kontrol
+        const street = L.tileLayer(
+          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          { maxZoom: 20, attribution: "Â© OpenStreetMap" }
+        );
+        const satellite = L.tileLayer(
+          "https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+          {
+            subdomains: ["mt0", "mt1", "mt2", "mt3"],
+            attribution: "Google Satellite",
+          }
+        );
+        const hybrid = L.tileLayer(
+          "https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+          {
+            subdomains: ["mt0", "mt1", "mt2", "mt3"],
+            attribution: "Google Hybrid",
+          }
+        );
+        const terrain = L.tileLayer(
+          "https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}",
+          {
+            subdomains: ["mt0", "mt1", "mt2", "mt3"],
+            attribution: "Google Terrain",
+          }
+        );
+        let baseLayers = {
+          Street: street,
+          Satellite: satellite,
+          Hybrid: hybrid,
+          Terrain: terrain,
+        };
+        street.addTo(window._desaMap);
+        L.control.layers(baseLayers).addTo(window._desaMap);
+
+        // POLYGON BATAS DUSUN
+        const batasDesa = [
+          [-7.941052, 110.397975],
+          [-7.941183, 110.39826],
+          [-7.941088, 110.398444],
+          [-7.940963, 110.398465],
+          [-7.940824, 110.398292],
+          [-7.940885, 110.398127],
+          [-7.941052, 110.397975],
+        ];
+        L.polygon(batasDesa, {
+          color: "green",
+          weight: 3,
+          fillColor: "#53e8b2",
+          fillOpacity: 0.13,
+        })
+          .addTo(window._desaMap)
+          .bindPopup("Perkiraan Batas Dusun Kajor Kulon");
+
+        // POLYGON BATAS 6 RT dalam Dusun Kajor Kulon (perkiraan bentuk, bisa tracing manual di geojson.io)
+        const batasRT = [
+          {
+            area: [
+              [-7.9401, 110.39638],
+              [-7.93975, 110.3962],
+              [-7.93913, 110.39763],
+              [-7.93956, 110.39802],
+              [-7.9401, 110.39638],
+            ],
+            color: "#005eff",
+            fill: "#bbdeff",
+            name: "RT 01",
+          },
+          {
+            area: [
+              [-7.93956, 110.39802],
+              [-7.93913, 110.39763],
+              [-7.93928, 110.39895],
+              [-7.93977, 110.39924],
+              [-7.93956, 110.39802],
+            ],
+            color: "#fb5a00",
+            fill: "#ffd2b9",
+            name: "RT 02",
+          },
+          {
+            area: [
+              [-7.93977, 110.39924],
+              [-7.93928, 110.39895],
+              [-7.94032, 110.40012],
+              [-7.94069, 110.39932],
+              [-7.93977, 110.39924],
+            ],
+            color: "#c700ff",
+            fill: "#e7bcff",
+            name: "RT 03",
+          },
+          {
+            area: [
+              [-7.94069, 110.39932],
+              [-7.94032, 110.40012],
+              [-7.94099, 110.40057],
+              [-7.94172, 110.39998],
+              [-7.94069, 110.39932],
+            ],
+            color: "#13c114",
+            fill: "#bbffbc",
+            name: "RT 04",
+          },
+          {
+            area: [
+              [-7.94172, 110.39998],
+              [-7.94099, 110.40057],
+              [-7.94205, 110.39922],
+              [-7.94172, 110.39998],
+            ],
+            color: "#f8e400",
+            fill: "#fffdb7",
+            name: "RT 05",
+          },
+          {
+            area: [
+              [-7.94205, 110.39922],
+              [-7.9421, 110.39822],
+              [-7.94125, 110.39636],
+              [-7.94055, 110.39588],
+              [-7.9401, 110.39638],
+              [-7.94205, 110.39922],
+            ],
+            color: "#ff006f",
+            fill: "#ffc3de",
+            name: "RT 06",
+          },
+        ];
+        // Render RT
+        batasRT.forEach((rt) => {
+          L.polygon(rt.area, {
+            color: rt.color,
+            fillColor: rt.fill,
+            fillOpacity: 0.17,
+            dashArray: "3",
+          })
+            .addTo(window._desaMap)
+            .bindPopup(rt.name);
+        });
+
+        L.marker(CENTER)
+          .addTo(window._desaMap)
+          .bindPopup("<b>Balai Dusun Kajor Kulon</b>");
+      }
+      // kelola berita
+
+      // 2. FORM CRUD ADMIN
+      document.getElementById("formBerita").onsubmit = function (e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const f = Object.fromEntries(fd.entries());
+
+  // normalisasi field ke satu skema
+  const item = {
+    judul: f.title,
+    gambar: f.img,
+    penulis: f.author,
+    tanggal: f.date || new Date().toISOString().slice(0, 10),
+    isi: f.desc,
+    kategori: f.kategori || "berita"
+  };
+
+  const arr = ambilDataBerita();
+  arr.unshift(item);               // tambah di awal
+  simpanDataBerita(arr);           // simpan ke localStorage
+
+  e.target.reset();
+  tampilDaftarBeritaAdmin();       // refresh list di halaman Kelola
+  renderBerita();                  // refresh daftar berita di dashboard
+  renderArtikel();                 // refresh daftar artikel di dashboard
+  alert("Berita/Artikel berhasil ditambah!");
+};
+
+
+      // 3. RENDER BERITA/ARTIKEL KE GRID MASING-MASING
+      function renderBerita() {
+  const data = ambilDataBerita().filter(b => b.kategori === "berita");
+  const grid = document.getElementById("beritaGrid");
+  if (!grid) return;
+  grid.innerHTML = data.length
+    ? data.map(d => `
+      <div class="news-card">
+        <img src="${d.gambar}" alt="${d.judul}" class="news-img">
+        <div class="news-content">
+          <div class="news-title">${d.judul}</div>
+          <div class="news-meta">${d.tanggal} | ${d.penulis}</div>
+          <div class="news-desc">${d.isi}</div>
+        </div>
+      </div>
+    `).join("")
+    : "<em>Belum ada berita.</em>";
+}
+
+function renderArtikel() {
+  const data = ambilDataBerita().filter(b => b.kategori === "artikel");
+  const grid = document.getElementById("artikelGrid");
+  if (!grid) return;
+  grid.innerHTML = data.length
+    ? data.map(d => `
+      <div class="article-card">
+        <img src="${d.gambar}" alt="${d.judul}" class="article-img">
+        <div class="article-body">
+          <div class="article-title">${d.judul}</div>
+          <div class="article-meta">${d.tanggal} | ${d.penulis}</div>
+          <div class="article-desc">${d.isi}</div>
+        </div>
+      </div>
+    `).join("")
+    : "<em>Belum ada artikel.</em>";
+}
+
+
+      // 4. ADMIN TABEL LIST & HAPUS
+      function tampilDaftarBeritaAdmin() {
+        const wrap = document.getElementById("daftarBeritaAdmin");
+        const arr = ambilDataBerita();
+        wrap.innerHTML =
+          `<table><tr><th>No</th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Hapus</th></tr>` +
+          arr
+            .map(
+              (d, i) =>
+                `<tr>
+        <td>${i + 1}</td>
+        <td>${d.title}</td>
+        <td>${d.kategori}</td>
+        <td>${d.date}</td>
+        <td><button onclick="hapusBerita(${i})">Hapus</button></td>
+      </tr>`
+            )
+            .join("") +
+          "</table>";
+      }
+      function hapusBerita(idx) {
+        if (!confirm("Hapus data ini?")) return;
+        const arr = ambilDataBerita();
+        arr.splice(idx, 1);
+        simpanDataBerita(arr);
+        tampilDaftarBeritaAdmin();
+        renderBerita();
+        renderArtikel();
+        alert("Data dihapus.");
+      }
+
+      function showSection(sectionId) {
+        // Sembunyikan semua section
+        document
+          .querySelectorAll(".main-section")
+          .forEach((s) => (s.style.display = "none"));
+
+        // Tampilkan section yang dipilih
+        const sec = document.getElementById(sectionId);
+        if (sec) sec.style.display = "block";
+
+        // === MENU LAIN ===
+        if (sectionId === "beritaSection") renderBerita();
+        if (sectionId === "artikelSection") renderArtikel();
+        if (sectionId === "kelolaberitaSection") tampilDaftarBeritaAdmin();
+
+        if (sectionId === "keunggulanSection") {
+          // panggil fungsi render kelola keunggulan di sini kalau ada
+          // misalnya: renderKelolaKeunggulan();
+        }
+
+        if (sectionId === "kependudukan") {
+          dataDusun = ambilDataDusun(); // kalau sudah pakai storage dusun
+          updateTable();
+        }
+
+        if (sectionId === "suratDinas") renderDaftarSurat();
+        if (sectionId === "mapsdesaSection") {
+          renderMapKajorKulon && renderMapKajorKulon();
+        }
+      }
+
+      function kirimKeSpreadsheet(dataPenduduk) {
+        // GANTI DENGAN URL WEB APP ANDA!
+        const url =
+          "https://script.google.com/macros/s/AKfycbxOqJCiqdJyqgTx-CHPR3UFyJcpNVX3xosI_NXayHOiKQ_P_aelAr9hPFu1YZsr2hDJ/exec";
+        const params = new URLSearchParams(dataPenduduk).toString();
+        fetch(url + "?" + params)
+          .then((response) => response.text())
+          .then((result) => {
+            if (result === "OK") {
+              alert("Data berhasil terkirim!");
+            } else {
+              alert("Gagal menyimpan data.");
+            }
+          })
+          .catch((error) => {
+            alert("Terjadi error koneksi: " + error.message);
+          });
+      }
+
+      document
+        .getElementById("form-modal")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const dataPenduduk = {};
+          Array.from(e.target.elements).forEach((el) => {
+            if (el.name) dataPenduduk[el.name] = el.value;
+          });
+          kirimKeSpreadsheet(dataPenduduk);
+        });
+
+      function savePengaturanSurat(e) {
+        e.preventDefault();
+        let f = e.target;
+        let surat = {
+          nama: f.nama.value,
+          kode: f.kode.value,
+          lampiran: f.lampiran.value,
+          perihal: f.perihal.value,
+          isi: f.isi.value,
+        };
+        if (editingIdx != null) {
+          daftarSurat[editingIdx] = surat;
+        } else {
+          daftarSurat.push(surat);
+        }
+        localStorage.setItem("daftarSuratDinas", JSON.stringify(daftarSurat));
+        hideModalPengaturan();
+        renderDaftarSurat();
+
+        // PATCH BEGIN - Tambahkan di sini!
+        fetch(
+          "https://script.google.com/macros/s/AKfycbxOqJCiqdJyqgTx-CHPR3UFyJcpNVX3xosI_NXayHOiKQ_P_aelAr9hPFu1YZsr2hDJ/exec?sheet=suratdinas&action=tambah&" +
+            new URLSearchParams(surat)
+        )
+          .then((r) => r.text())
+          .then((result) => {
+            // Jika ingin alert only on fail:
+            if (result !== "OK") alert("Gagal simpan ke spreadsheet!");
+          });
+        // PATCH END
+      }
+
+      // === BERITA & ARTIKEL DI BERANDA ===
+      
+
+      const loader = document.getElementById('pageLoader');
+
+function showSection(sectionId){
+  if(loader) loader.style.display = 'flex';
+
+  setTimeout(() => {
+    document.querySelectorAll('.main-section')
+      .forEach(s => s.style.display = 'none');
+
+    const sec = document.getElementById(sectionId);
+    if(sec) sec.style.display = 'block';
+
+    if(sectionId === 'beritaSection') renderBerita();
+    if(sectionId === 'artikelSection') renderArtikel();
+    if(sectionId === 'suratDinas') renderDaftarSurat();
+    if(sectionId === 'mapsdesaSection' && typeof renderMapKajorKulon==='function'){
+      renderMapKajorKulon();
+    }
+
+
+    if(loader) loader.style.display = 'none';
+  }, 500); // durasi loading 0,5 s
+}
+
+// === STORAGE BERITA/ARTIKEL (LOCALSTORAGE) ===
+const KEY_BERITA = "ka_news_pro_v2";
+
+function ambilDataBerita() {
+  try {
+    return JSON.parse(localStorage.getItem(KEY_BERITA)) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function simpanDataBerita(arr) {
+  localStorage.setItem(KEY_BERITA, JSON.stringify(arr));
+}
+
+document.getElementById("formBerita").onsubmit = function (e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const data = Object.fromEntries(fd.entries());
+  if (!data.date) data.date = new Date().toISOString().slice(0, 10);
+  const arr = ambilDataBerita();
+  arr.unshift(data);
+  simpanDataBerita(arr);
+  e.target.reset();
+  tampilDaftarBeritaAdmin();
+  alert("Berita/Artikel berhasil ditambah!");
+  // Direct update Berita/Artikel grid (auto tampil di menu)
+  renderBerita();
+  renderArtikel();
+};
+
+function renderBerita() {
+  const data = ambilDataBerita().filter(x => x.kategori === "berita");
+  const grid = document.getElementById("beritaGrid");
+  grid.innerHTML = data.length
+    ? data.map(d => `
+      <div class="news-card">
+        <img src="${d.img || d.gambar}" alt="${d.title || d.judul}" class="news-img">
+        <div class="news-content">
+          <div class="news-title">${d.title || d.judul}</div>
+          <div class="news-meta">${d.date || d.tanggal} | ${d.author || d.penulis}</div>
+          <div class="news-desc">${d.desc || d.isi}</div>
+        </div>
+      </div>
+    `).join("")
+    : "<em>Belum ada berita.</em>";
+}
+
+function renderArtikel() {
+  const data = ambilDataBerita().filter(x => x.kategori === "artikel");
+  const grid = document.getElementById("artikelGrid");
+  grid.innerHTML = data.length
+    ? data.map(d => `
+      <div class="article-card">
+        <img src="${d.img || d.gambar}" alt="${d.title || d.judul}" class="article-img">
+        <div class="article-body">
+          <div class="article-title">${d.title || d.judul}</div>
+          <div class="article-meta">${d.date || d.tanggal} | ${d.author || d.penulis}</div>
+          <div class="article-desc">${d.desc || d.isi}</div>
+        </div>
+      </div>
+    `).join("")
+    : "<em>Belum ada artikel.</em>";
+}
+
+// === STORAGE CATATAN WARGA ===
+const KEY_CATATAN = "kajor_catatan_warga";
+
+function ambilCatatan() {
+  try {
+    return JSON.parse(localStorage.getItem(KEY_CATATAN)) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function simpanCatatan(arr) {
+  localStorage.setItem(KEY_CATATAN, JSON.stringify(arr));
+}
+
+function renderCatatan() {
+  const list = document.getElementById("catatanList");
+  if (!list) return;
+
+  const data = ambilCatatan();
+  list.innerHTML = "";
+
+  if (!data.length) {
+    const empty = document.createElement("div");
+    empty.className = "catatan-empty";
+    empty.textContent =
+      "Belum ada catatan. Warga dapat mulai menulis saran melalui form di sebelah.";
+    list.appendChild(empty);
+    return;
+  }
+
+  data.forEach((item, idx) => {
+    const div = document.createElement("div");
+    div.className = "catatan-item";
+    div.innerHTML = `
+      <div class="catatan-item-header">
+        <span>${item.nama || "Warga"}</span>
+        <span>${item.rt ? "RT " + item.rt : ""}</span>
+      </div>
+      <div class="catatan-item-tanggal">${item.waktu}</div>
+      <div class="catatan-item-isi">${item.isi}</div>
+      <button onclick="hapusCatatan(${idx})">Hapus</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function hapusCatatan(idx) {
+  if (!confirm("Hapus catatan ini?")) return;
+  const data = ambilCatatan();
+  data.splice(idx, 1);
+  simpanCatatan(data);
+  renderCatatan();
+}
+
+function initCatatanForm() {
+  const form = document.getElementById("catatanForm");
+  if (!form) return;
+
+  form.onsubmit = function (e) {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const f = Object.fromEntries(fd.entries());
+    if (!f.isi.trim()) return;
+
+    const now = new Date();
+    const waktu =
+      now.toLocaleDateString("id-ID") +
+      " " +
+      now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+    const data = ambilCatatan();
+    data.unshift({
+      nama: f.nama,
+      rt: f.rt,
+      isi: f.isi,
+      waktu
+    });
+
+    simpanCatatan(data);
+    form.reset();
+    renderCatatan();
+  };
+}
+
+// panggil saat halaman siap
+window.addEventListener("load", () => {
+  initCatatanForm();
+  renderCatatan();
+});
+
+
+      // Initialize default
+      window.onload = function () {
+        showSection("dashboard");
+      };
+    </script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  </body>
+</html>
